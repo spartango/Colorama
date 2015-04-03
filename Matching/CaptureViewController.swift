@@ -11,38 +11,54 @@ import UIKit
 import MobileCoreServices
 
 class CaptureViewController: UIViewController, UINavigationControllerDelegate, UIImagePickerControllerDelegate {
+
+    @IBOutlet var imageView: UIImageView!
+    var pickerController: UIImagePickerController!
+
+    required init(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+    }
     
     override func viewDidAppear(animated: Bool) {
         super.viewDidAppear(animated)
-        capture()
+        if(imageView.image == nil) {
+            capture()
+        }
     }
     
-    func imagePickerController(picker: UIImagePickerController!, didFinishPickingImage image: UIImage!, editingInfo: NSDictionary!){
-        println("i've got an image")
+    func imagePickerController(picker: UIImagePickerController!, didFinishPickingImage image: UIImage!, editingInfo: NSDictionary!) {
+        println("Going to review")
+        review(image);
     }
     
-    func capture() {
-        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera){
+    @IBAction func capture() {
+        pickerController = UIImagePickerController()
+        pickerController.delegate = self
+        pickerController.mediaTypes = [kUTTypeImage]
+
+        if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.Camera) {
             println("Button capture")
             
-            var cameraController = UIImagePickerController()
-            cameraController.delegate = self
-            cameraController.sourceType = UIImagePickerControllerSourceType.Camera;
-            cameraController.mediaTypes = [kUTTypeImage]
-            cameraController.allowsEditing = false
+            pickerController.sourceType = UIImagePickerControllerSourceType.Camera;
+            pickerController.allowsEditing = false
             
-            self.presentViewController(cameraController, animated: true, completion: nil)
-        } else if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.PhotoLibrary){
+            self.presentViewController(pickerController, animated: true, completion: nil)
+        } else if UIImagePickerController.isSourceTypeAvailable(UIImagePickerControllerSourceType.PhotoLibrary) {
             println("Library chooser")
             
-            var pickerController = UIImagePickerController()
-            pickerController.delegate = self
             pickerController.sourceType = UIImagePickerControllerSourceType.PhotoLibrary;
-            pickerController.mediaTypes = [kUTTypeImage]
             pickerController.allowsEditing = false
+            
             self.presentViewController(pickerController, animated: true, completion: nil)
         } else {
             println("Nothing to pick from")
         }
     }
+    
+    func review(image: UIImage!) {
+        println("Showing image")
+        self.imageView.image = image
+        pickerController.dismissViewControllerAnimated(true, completion: nil)
+    }
+    
 }
